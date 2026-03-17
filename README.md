@@ -73,6 +73,5 @@ weighted avg       0.78      0.79      0.78      1409
 
 ##  Contributors
 
-- [@devanshigit](https://github.com/devanshigit) 
-- [@abahadur29](https://github.com/abahadur29) 
+- [@ishwar](https://github.com/ishwarthecodddr) 
 
