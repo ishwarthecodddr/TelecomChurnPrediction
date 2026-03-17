@@ -1,39 +1,39 @@
-"""
-FastAPI Backend for Telecom Customer Churn Prediction
-A simple API that loads a pre-trained ML model and predicts customer churn.
-"""
-
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import pickle
-import numpy as np
 
-# Initialize FastAPI app
+import joblib
+import pandas as pd
+import os
+
+# Initialize FastAPI
 app = FastAPI(title="Churn Prediction API")
 
-# Enable CORS so frontend can communicate with backend
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for demo
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load the trained model from pickle file
-with open("churn_model.pkl", "rb") as f:
-    model = pickle.load(f)
+# MODEL PATH (robust)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "model", "churn_pipeline.pkl")
+
+# Load pipeline
+pipeline = joblib.load(MODEL_PATH)
 
 
-# Define the input data structure
+# Input schema
 class CustomerData(BaseModel):
-    tenure: int           # How long the customer has been with the company
-    MonthlyCharges: float # Monthly charges in dollars
-    TotalCharges: float   # Total charges over the customer's tenure
+    tenure: int
+    MonthlyCharges: float
+    TotalCharges: float
 
 
-# Root endpoint - just to check if API is running
+# Root endpoint
 @app.get("/")
 def read_root():
     return {"message": "Churn Prediction API is running!"}
@@ -42,20 +42,52 @@ def read_root():
 # Prediction endpoint
 @app.post("/predict")
 def predict_churn(data: CustomerData):
-    """
-    Predict whether a customer will churn based on their data.
-    Returns: {"churn": "Yes"} or {"churn": "No"}
-    """
-    # Convert input data to numpy array for model
-    features = np.array([[
-        data.tenure,
-        data.MonthlyCharges,
-        data.TotalCharges
-    ]])
-    
-    # Make prediction (0 = No churn, 1 = Churn)
-    prediction = model.predict(features)[0]
-    
-    # Return result as Yes/No
-    result = "Yes" if prediction == 1 else "No"
-    return {"churn": result}
+
+    # 🔒 VALIDATION WITH PROPER ERRORS
+    if not (0 <= data.tenure <= 100):
+        raise HTTPException(
+            status_code=400,
+            detail="Tenure must be between 0 and 100"
+        )
+
+    if not (0 <= data.MonthlyCharges <= 500):
+        raise HTTPException(
+            status_code=400,
+            detail="MonthlyCharges must be between 0 and 500"
+        )
+
+    if not (0 <= data.TotalCharges <= 10000):
+        raise HTTPException(
+            status_code=400,
+            detail="TotalCharges must be between 0 and 10000"
+        )
+
+    # Prepare input data
+    df = pd.DataFrame([{
+        "tenure": data.tenure,
+        "MonthlyCharges": data.MonthlyCharges,
+        "TotalCharges": data.TotalCharges,
+
+        # Default values
+        "gender": "Male",
+        "SeniorCitizen": 0,
+        "Partner": "Yes",
+        "Dependents": "No",
+        "PhoneService": "Yes",
+        "MultipleLines": "No",
+        "InternetService": "Fiber optic",
+        "OnlineSecurity": "No",
+        "OnlineBackup": "Yes",
+        "DeviceProtection": "No",
+        "TechSupport": "No",
+        "StreamingTV": "Yes",
+        "StreamingMovies": "Yes",
+        "Contract": "Month-to-month",
+        "PaperlessBilling": "Yes",
+        "PaymentMethod": "Electronic check"
+    }])
+
+    # Prediction
+    prediction = pipeline.predict(df)[0]
+
+    return {"churn": "Yes" if prediction == 1 else "No"}

@@ -26,11 +26,11 @@ function App() {
     setLoading(true)
     setError(null)
     setResult(null)
-    
+
     setPipelineStep(1)
     await new Promise(r => setTimeout(r, 500))
     setPipelineStep(2)
-    
+
     try {
       const response = await fetch('http://localhost:8000/predict', {
         method: 'POST',
@@ -44,10 +44,10 @@ function App() {
 
       setPipelineStep(3)
       if (!response.ok) throw new Error('Prediction failed')
-      
+
       await new Promise(r => setTimeout(r, 400))
       setPipelineStep(4)
-      
+
       const data = await response.json()
       setResult(data.churn)
     } catch (err) {
@@ -60,13 +60,13 @@ function App() {
 
   return (
     <div className={`min-h-screen relative overflow-hidden ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}>
-      
+
       {/* Circular Transition Overlay - From Bottom Center using clip-path */}
-      <div 
+      <div
         className="fixed inset-0 z-40 pointer-events-none will-change-[clip-path]"
         style={{
-          clipPath: isTransitioning 
-            ? 'circle(150% at 50% 100%)' 
+          clipPath: isTransitioning
+            ? 'circle(150% at 50% 100%)'
             : 'circle(0% at 50% 100%)',
           transition: 'clip-path 0.8s ease-in-out',
           backgroundColor: darkMode ? '#f0f4ff' : '#111827',
@@ -79,20 +79,20 @@ function App() {
           <div className="flex-1" />
           <div className="text-center">
             <h1 className={`text-3xl font-bold flex items-center justify-center gap-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-              <span className="text-4xl">📞</span> 
+              <span className="text-4xl">📞</span>
               Telecom Churn Prediction
             </h1>
             <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Machine Learning powered customer retention analysis</p>
           </div>
-          
+
           {/* Toggle Button - Top Right */}
           <div className="flex-1 flex justify-end">
             <button
               onClick={toggleTheme}
               disabled={isTransitioning}
               className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-lg border transition-all duration-300 hover:scale-105 disabled:hover:scale-100 z-50
-                ${darkMode 
-                  ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' 
+                ${darkMode
+                  ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600'
                   : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-50'}`}
             >
               <span className="text-lg">{darkMode ? '☀️' : '🌙'}</span>
@@ -108,14 +108,14 @@ function App() {
       {/* Main Content */}
       <main className="relative z-10 max-w-6xl mx-auto p-6 md:p-8 pb-24">
         <div className="grid md:grid-cols-2 gap-8">
-          
+
           {/* Left: Form Card */}
           <div className={`rounded-xl shadow-lg border p-6 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <h2 className={`text-xl font-bold mb-6 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${darkMode ? 'bg-indigo-900 text-indigo-400' : 'bg-indigo-100 text-indigo-600'}`}>📊</span>
               Enter Customer Data
             </h2>
-            
+
             <form onSubmit={handlePredict} className="space-y-4">
               <div>
                 <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -129,8 +129,8 @@ function App() {
                   required
                   min="0"
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all
-                    ${darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    ${darkMode
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                 />
                 <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>How long has the customer been with us?</p>
@@ -149,8 +149,8 @@ function App() {
                   step="0.01"
                   min="0"
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all
-                    ${darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    ${darkMode
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                 />
                 <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Current monthly bill amount</p>
@@ -169,15 +169,15 @@ function App() {
                   step="0.01"
                   min="0"
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all
-                    ${darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    ${darkMode
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                 />
                 <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Total amount paid till date</p>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading}
                 className="w-full py-3 mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all disabled:bg-indigo-400 disabled:cursor-not-allowed"
               >
@@ -188,16 +188,16 @@ function App() {
             {/* Result */}
             {result && (
               <div className={`mt-6 p-4 rounded-lg text-center ${
-                result === 'Yes' 
-                  ? 'bg-red-500/20 border-2 border-red-500 text-red-500' 
+                result === 'Yes'
+                  ? 'bg-red-500/20 border-2 border-red-500 text-red-500'
                   : 'bg-green-500/20 border-2 border-green-500 text-green-500'
               }`}>
                 <p className="font-bold text-lg mb-1">
                   {result === 'Yes' ? '⚠️ Churn Risk: HIGH' : '✅ Churn Risk: LOW'}
                 </p>
                 <p className="text-sm opacity-90">
-                  {result === 'Yes' 
-                    ? 'This customer is likely to leave. Consider retention strategies!' 
+                  {result === 'Yes'
+                    ? 'This customer is likely to leave. Consider retention strategies!'
                     : 'This customer is likely to stay. Keep up the good service!'}
                 </p>
               </div>
@@ -216,7 +216,7 @@ function App() {
               <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${darkMode ? 'bg-purple-900 text-purple-400' : 'bg-purple-100 text-purple-600'}`}>⚙️</span>
               How It Works
             </h2>
-            
+
             {/* Pipeline Steps */}
             <div className="space-y-3">
               {[
@@ -227,10 +227,10 @@ function App() {
               ].map((item, idx) => (
                 <div key={item.step} className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition-all
-                    ${pipelineStep >= item.step 
-                      ? pipelineStep > item.step 
-                        ? 'bg-green-500/20 text-green-500' 
-                        : 'bg-indigo-500/20 text-indigo-500 animate-pulse' 
+                    ${pipelineStep >= item.step
+                      ? pipelineStep > item.step
+                        ? 'bg-green-500/20 text-green-500'
+                        : 'bg-indigo-500/20 text-indigo-500 animate-pulse'
                       : darkMode ? 'bg-gray-700 text-gray-500' : 'bg-gray-100 text-gray-400'}`}>
                     {pipelineStep > item.step ? '✓' : item.icon}
                   </div>
